@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'player.apps.PlayerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,8 +77,12 @@ WSGI_APPLICATION = 'CloudMusic.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cloud',
+        'USER': 'clouduser',
+        'PASSWORD': 'acsxdz',
+        'HOST':'127.0.0.1',
+        'PORT':'3306'
     }
 }
 
@@ -118,3 +124,96 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# LOG file
+LOG_DIR = os.path.join(BASE_DIR, 'player','logs/')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s : %(message)s'
+        },
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s %(module)s %(process)d %(thread)d : %(message)s'
+        },
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s]-  %(message)s'
+        },
+        'info': {
+            'format': '[%(asctime)s] [%(threadName)s:%(thread)d] [%(levelname)s] %(message)s'
+        },
+        'error-http': {
+            'format': '[%(asctime)s] [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+             'level': 'ERROR',
+             'class': 'logging.handlers.RotatingFileHandler',
+             'filename': os.path.join(LOG_DIR, 'default.log'),
+             'maxBytes': 1024 * 1024 * 5,
+             'backupCount': 5,
+             'formatter': 'simple',
+         },
+        'console_error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'console.log'),
+            'formatter': 'standard',
+        },
+        'request_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'request.log'),
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'file-error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'error.log'),
+            'formatter': 'standard',
+            'maxBytes': 1024 * 1024 * 50,  # 5 MB
+            'backupCount': 5,
+            'mode': 'a',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'info',
+            'filename': os.path.join(LOG_DIR, 'info.log'),
+            'maxBytes': 1024 * 1024 * 50,  # 5 MB
+            'backupCount': 5,
+            'mode': 'a',
+        },
+        'file-http': {
+            'level': 'INFO',
+            'class': 'logging.handlers.HTTPHandler',
+            'formatter': 'info',
+            "host": "127.0.0.1:8080",
+            "url": "/log_server",
+            "method": "POST",
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['file','file-error'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'http_request': {
+            'handlers': ['console_error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    }
+
+}
