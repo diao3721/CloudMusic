@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>开始使用layui</title>
+    {% load static %}
+  <link rel="stylesheet" href="{% static 'player/css/layui.css' %}">
+</head>
+<body>
+<div class="layui-container">
+    <ul class="layui-nav"  lay-filter="CloudMenu" >
+      <li class="layui-nav-item"><a href="javascript:;" >获取日志</a></li>
+      <li class="layui-nav-item"><a href="javascript:;" >实时统计</a></li>
+      <li class="layui-nav-item" style="float: right"><a href="dologout">退出</a></li>
+    </ul>
+    <div class="layui-row layui-col-space15">
+        <form class="layui-form" action="">
+            {%csrf_token%}
+          <div class="layui-form-item">
+            <label class="layui-form-label">音乐</label>
+            <div class="layui-input-inline">
+              <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+            </div>
+              <div class="layui-input-inline">
+                  <button class="layui-btn" lay-submit lay-filter="searchJs">立即提交</button>
+                  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+          </div>
+        </form>
+        <table id="searchResult" lay-filter="test"></table>
+    </div>
+</div>
+<!-- 你的HTML代码 -->
+<script src="{% static 'player/layui.js' %}"></script>
+<script>
+//一般直接写在一个js文件中
+layui.use(['layer', 'form','element','table'], function(){
+  var layer = layui.layer
+  ,form = layui.form
+  ,element = layui.element
+  ,table = layui.table;
+
+  layer.msg('Hello World');
+  table.render({
+    elem: '#searchResult'
+    ,url: ''
+    ,method: 'post'
+    ,parseData: function(res){
+      return {
+        "code":res.status,
+        "msg": res.message, //解析提示文本
+        "count": res.total, //解析数据长度
+        "data": res.data.item //解析数据列表
+      }
+    }
+    ,request:[
+
+    ]
+  })
+});
+</script>
+</body>
+</html>
