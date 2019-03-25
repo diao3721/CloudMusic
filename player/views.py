@@ -59,6 +59,21 @@ def results(request, question_id):
 def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
 
+def playMusic(request):
+    failRes = {
+        'code': 9999,
+        'errRes': ""
+    }
+    logging.info("开始")
+    logger.info("接收到request请求")
+    logger.info(request.GET)
+    if (request.method != 'GET'):
+        failRes['errRes'] = "请使用GET方法"
+        return JsonResponse(failRes)
+    else:
+        song = request.GET.get('song', '')
+    pass
+
 def musicSearch(request):
     failRes = {
         'code':9999,

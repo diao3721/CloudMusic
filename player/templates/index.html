@@ -17,7 +17,6 @@
     <div class="layui-row layui-col-space15">
         <form class="layui-form" action="search" method="get">
             {%csrf_token%}
-          <div class="layui-form-item">
             <label class="layui-form-label">音乐</label>
             <div class="layui-input-inline">
               <input type="text" name="song" required  lay-verify="required" placeholder="请输入音乐名" autocomplete="off" class="layui-input">
@@ -26,7 +25,6 @@
                   <button class="layui-btn" lay-submit lay-filter="searchJs">搜索</button>
                   <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
-          </div>
         </form>
         <table id="searchResult" lay-filter="result"></table>
     </div>
@@ -35,9 +33,9 @@
 <script src="{% static 'player/layui.js' %}"></script>
 <script src="{% static 'player/tools.js' %}"></script>
 <script type="text/html" id="searchBar">
-  <a class="layui-btn layui-btn-xs" lay-event="detail">图片</a>
-  <a class="layui-btn layui-btn-xs" lay-event="edit">歌词</a>
-  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">播放</a>
+  <!--<a class="layui-btn layui-btn-xs" lay-event="pic">图片</a>-->
+  <a class="layui-btn layui-btn-xs" lay-event="lrc">歌词</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="url">播放</a>
 </script>
 
 <script>
@@ -88,10 +86,15 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       var data = obj.data;
       var layEvent = obj.event;
       var tr = obj.tr;
-      if(layEvent === 'detail'){
+      if(layEvent === 'pic'){
           console.log(data);
       }
-  })
+  });
+  table.on('checkbox(result)', function(obj){
+      console.log(obj.checked); //当前是否选中状态
+      console.log(obj.data); //选中行的相关数据
+      console.log(obj.type); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+    });
 
 });
 </script>
