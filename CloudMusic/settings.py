@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import logging
+import django.utils.log
+import logging.handlers
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,7 +58,7 @@ ROOT_URLCONF = 'CloudMusic.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR+"/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -105,6 +107,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SEARCH_URL = "https://api.bzqll.com/music/netease/search"
+SEARCH_KEY = "579621905"
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -154,6 +158,7 @@ LOGGING = {
              'filename': os.path.join(LOG_DIR, 'default.log'),
              'maxBytes': 1024 * 1024 * 5,
              'backupCount': 5,
+             'encoding': 'utf8',
              'formatter': 'simple',
          },
         'console_error': {
@@ -177,6 +182,7 @@ LOGGING = {
             'formatter': 'standard',
             'maxBytes': 1024 * 1024 * 50,  # 5 MB
             'backupCount': 5,
+            'encoding': 'utf8',
             'mode': 'a',
         },
         'file': {
@@ -186,6 +192,7 @@ LOGGING = {
             'filename': os.path.join(LOG_DIR, 'info.log'),
             'maxBytes': 1024 * 1024 * 50,  # 5 MB
             'backupCount': 5,
+            'encoding': 'utf8',
             'mode': 'a',
         },
         'file-http': {
