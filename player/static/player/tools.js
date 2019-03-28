@@ -49,3 +49,11 @@ function s_to_hs(s){
     s  =   (s.length==1)?'0'+s:s;
     return h+':'+s;
 }
+//判断字符是否为空的方法
+function isEmpty(obj){
+	if(typeof obj == "undefined" || obj == null || obj == ""){
+		return true;
+	}else{
+		return false;
+	}
+}

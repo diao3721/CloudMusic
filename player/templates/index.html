@@ -8,12 +8,14 @@
   <link rel="stylesheet" href="{% static 'player/css/layui.css' %}">
 </head>
 <body>
+
 <div class="layui-container">
     <ul class="layui-nav"  lay-filter="CloudMenu" >
       <li class="layui-nav-item"><a href="javascript:;" >歌曲搜索</a></li>
       <li class="layui-nav-item"><a href="javascript:;" >播放链接</a></li>
       <li class="layui-nav-item" style="float: right"><a href="dologout">退出</a></li>
     </ul>
+
     <div class="layui-row layui-col-space15">
         <form class="layui-form" action="search" method="get">
             {%csrf_token%}
@@ -25,17 +27,77 @@
                   <button class="layui-btn" lay-submit lay-filter="searchJs">搜索</button>
                   <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
+            <button class="layui-btn" onclick="desObj()">销毁</button>
         </form>
         <table id="searchResult" lay-filter="result"></table>
+
     </div>
+
 </div>
+<audio controls>
+    <source src="" type="audio/mpeg" id="srcPlayer">
+</audio>
+<!--<div id="skPlayer"></div>-->
 <!-- 你的HTML代码 -->
 <script src="{% static 'player/layui.js' %}"></script>
 <script src="{% static 'player/tools.js' %}"></script>
+<script src="{% static 'player/skPlayer.min.js'%}"></script>
+<script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.1/howler.min.js"></script>
+<script type="text/javascript">
+    var sound = new Howl({
+        src:['https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905']
+    });
+    sound.play();
+    var player = new skPlayer({
+        autoplay:false,
+        listshow:false,
+        music:{
+            type:'file',
+            source:[
+                {
+                    name:'起风了',
+                    author:'吴青峰',
+                    src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
+                    cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
+                }
+            ]
+        }
+    });
+    console.log(typeof player);
+    function desObj(player){
+        if(typeof player === "object"){
+            console.log(player);
+        }else{
+            player.destroy();
+        }
+    }
+
+    function addMusic(url,pic,singer,name,player) {
+        console.log(player);
+        player.destroy();
+        return new skPlayer({
+            autoplay:false,
+            listshow:false,
+            music:{
+                type:'file',
+                source:[
+                    {
+                        name:name,
+                        author:singer,
+                        src:url,
+                        cover:pic
+                    }
+                ]
+            }
+        });
+    }
+</script>
 <script type="text/html" id="searchBar">
-  <!--<a class="layui-btn layui-btn-xs" lay-event="pic">图片</a>-->
-  <a class="layui-btn layui-btn-xs" lay-event="lrc">歌词</a>
-  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="url">播放</a>
+    <!--<a class="layui-btn layui-btn-xs" lay-event="pic">图片</a>-->
+    <!--<a class="layui-btn layui-btn-xs" lay-event="lrc">歌词</a>-->
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="url"><i class="layui-icon layui-icon-play"></i></a>
+    <a class="layui-btn layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></a>
 </script>
 
 <script>
@@ -87,6 +149,14 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       var layEvent = obj.event;
       var tr = obj.tr;
       if(layEvent === 'pic'){
+          console.log(data);
+      }
+      if(layEvent ==='url'){
+          console.log(data);
+          // $("#srcPlayer").attr("src",data.url);
+          // addMusic(data.url,data.pic,data.singer,data.name,player);
+      }
+      if(layEvent ==='lrc'){
           console.log(data);
       }
   });
