@@ -34,21 +34,13 @@
     </div>
 
 </div>
-<audio controls>
-    <source src="" type="audio/mpeg" id="srcPlayer">
-</audio>
-<!--<div id="skPlayer"></div>-->
+<div id="skPlayer"></div>
 <!-- 你的HTML代码 -->
+<script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
 <script src="{% static 'player/layui.js' %}"></script>
 <script src="{% static 'player/tools.js' %}"></script>
 <script src="{% static 'player/skPlayer.min.js'%}"></script>
-<script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.1/howler.min.js"></script>
 <script type="text/javascript">
-    var sound = new Howl({
-        src:['https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905']
-    });
-    sound.play();
     var player = new skPlayer({
         autoplay:false,
         listshow:false,
@@ -65,17 +57,13 @@
         }
     });
     console.log(typeof player);
-    function desObj(player){
-        if(typeof player === "object"){
-            console.log(player);
-        }else{
+
+    function addMusic(url,pic,singer,name) {
+        console.log(player);
+        console.log(typeof player);
+        if (typeof player ==="object"){
             player.destroy();
         }
-    }
-
-    function addMusic(url,pic,singer,name,player) {
-        console.log(player);
-        player.destroy();
         return new skPlayer({
             autoplay:false,
             listshow:false,
@@ -154,7 +142,7 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       if(layEvent ==='url'){
           console.log(data);
           // $("#srcPlayer").attr("src",data.url);
-          // addMusic(data.url,data.pic,data.singer,data.name,player);
+          var player = addMusic(data.url,data.pic,data.singer,data.name,player);
       }
       if(layEvent ==='lrc'){
           console.log(data);
