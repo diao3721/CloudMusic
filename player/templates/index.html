@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="{% static 'player/css/layui.css' %}">
 </head>
 <body>
-
+{% load render_bundle from webpack_loader %}
 <div class="layui-container">
     <ul class="layui-nav"  lay-filter="CloudMenu" >
       <li class="layui-nav-item"><a href="javascript:;" >歌曲搜索</a></li>
@@ -27,7 +27,6 @@
                   <button class="layui-btn" lay-submit lay-filter="searchJs">搜索</button>
                   <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
-            <button class="layui-btn" onclick="desObj()">销毁</button>
         </form>
         <table id="searchResult" lay-filter="result"></table>
 
@@ -35,60 +34,57 @@
 
 </div>
 <div id="skPlayer"></div>
+<!--<div id="textaudio"></div>-->
 <!-- 你的HTML代码 -->
 <script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
 <script src="{% static 'player/layui.js' %}"></script>
 <script src="{% static 'player/tools.js' %}"></script>
-<script src="{% static 'player/skPlayer.min.js'%}"></script>
-<script type="text/javascript">
-    var player = new skPlayer({
-        autoplay:false,
-        listshow:false,
-        music:{
-            type:'file',
-            source:[
-                {
-                    name:'起风了',
-                    author:'吴青峰',
-                    src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
-                    cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
-                }
-            ]
-        }
-    });
-    console.log(typeof player);
-
-    function addMusic(url,pic,singer,name) {
-        console.log(player);
-        console.log(typeof player);
-        if (typeof player ==="object"){
-            player.destroy();
-        }
-        return new skPlayer({
-            autoplay:false,
-            listshow:false,
-            music:{
-                type:'file',
-                source:[
-                    {
-                        name:name,
-                        author:singer,
-                        src:url,
-                        cover:pic
-                    }
-                ]
-            }
-        });
-    }
-</script>
+<script src="{% static 'player/skPlayer.min.js' %}"></script>
 <script type="text/html" id="searchBar">
     <!--<a class="layui-btn layui-btn-xs" lay-event="pic">图片</a>-->
     <!--<a class="layui-btn layui-btn-xs" lay-event="lrc">歌词</a>-->
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="url"><i class="layui-icon layui-icon-play"></i></a>
     <a class="layui-btn layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></a>
 </script>
-
-<script>
+<script type="text/javascript">
+var player = new skPlayer({
+    autoplay:false,
+    listshow:false,
+    music:{
+        type:'file',
+        source:[
+            {
+                name:'起风了',
+                author:'吴青峰',
+                src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
+                cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
+            }
+        ]
+    }
+});
+console.log(typeof player);
+function addMusic(url,pic,singer,name) {
+    console.log(player);
+    console.log(typeof player);
+    if (typeof player ==="object" && !isEmpty(player)){
+        player.destroy();
+    }
+    return new skPlayer({
+        autoplay:false,
+        listshow:false,
+        music:{
+            type:'file',
+            source:[
+                {
+                    name:name,
+                    author:singer,
+                    src:url,
+                    cover:pic
+                }
+            ]
+        }
+    });
+}
 //一般直接写在一个js文件中
 layui.use(['layer', 'form','element','table','laytpl'], function(){
     var layer = layui.layer
@@ -143,6 +139,7 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
           console.log(data);
           // $("#srcPlayer").attr("src",data.url);
           var player = addMusic(data.url,data.pic,data.singer,data.name,player);
+          console.log(player);
       }
       if(layEvent ==='lrc'){
           console.log(data);
