@@ -33,7 +33,7 @@
     </div>
 
 </div>
-<div id="skPlayer"></div>
+<!--<div id="skPlayer"></div>-->
 <!--<div id="textaudio"></div>-->
 <!-- 你的HTML代码 -->
 <script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
@@ -47,22 +47,22 @@
     <a class="layui-btn layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></a>
 </script>
 <script type="text/javascript">
-var player = new skPlayer({
-    autoplay:false,
-    listshow:false,
-    music:{
-        type:'file',
-        source:[
-            {
-                name:'起风了',
-                author:'吴青峰',
-                src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
-                cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
-            }
-        ]
-    }
-});
-console.log(typeof player);
+// var player = new skPlayer({
+//     autoplay:false,
+//     listshow:false,
+//     music:{
+//         type:'file',
+//         source:[
+//             {
+//                 name:'起风了',
+//                 author:'吴青峰',
+//                 src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
+//                 cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
+//             }
+//         ]
+//     }
+// });
+// console.log(typeof player);
 function addMusic(url,pic,singer,name) {
     console.log(player);
     console.log(typeof player);
@@ -110,11 +110,8 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
           cols:[[
               {field:'id',title:'序号',type:'checkbox',unresize:true}
               ,{field:'name', title: '歌名'}
-              ,{field:'singer', title: '演唱者'}
-              ,{field:'pic', title: '图片',hide:true,templet:'#picTpl'}
-              ,{field:'lrc', title: '歌词',hide:true,templet:'#lrcTpl'}
-              ,{field:'url', title: '地址',hide:true,templet:'#urlTpl'}
-              ,{field:'time', title: '时长',templet:'#timTpl'}
+              ,{field:'artists', title: '演唱者',templet:'#artTpl'}
+              ,{field:'duration', title: '时长',templet:'#timTpl'}
               ,{fixed: 'right', width:150, align:'center', toolbar: '#searchBar'} //这里的toolbar值是模板元素的选择器
           ]],
           page:{
@@ -137,9 +134,7 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       }
       if(layEvent ==='url'){
           console.log(data);
-          // $("#srcPlayer").attr("src",data.url);
-          var player = addMusic(data.url,data.pic,data.singer,data.name,player);
-          console.log(player);
+
       }
       if(layEvent ==='lrc'){
           console.log(data);
@@ -163,7 +158,10 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
     <a href='{% verbatim %}{{d.url}}{% endverbatim %}' class="layui-table-link">播放链接</a>
 </script>
 <script type="text/html" id="timTpl">
-    {% verbatim %}{{ s_to_hs(d.time) }}{% endverbatim %}
+    {% verbatim %}{{ ms_to_hs(d.duration) }}{% endverbatim %}
+</script>
+<script type="text/html" id="artTpl">
+    {% verbatim %}{{ getSinger(d.artists) }}{% endverbatim %}
 </script>
 {% if errRes %}
 <script>

@@ -49,6 +49,29 @@ function s_to_hs(s){
     s  =   (s.length==1)?'0'+s:s;
     return h+':'+s;
 }
+
+/**
+ * 将毫秒转化成分钟
+ * @param mss
+ * @returns {string}
+ */
+function ms_to_hs(mss) {
+    var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.round((mss % (1000 * 60)) / 1000);
+    return minutes + ":" + seconds ;
+}
+
+/**
+ * 获取演唱者
+ * @param obj
+ */
+function getSinger(obj){
+    // console.log(obj);
+    // console.log(typeof obj);
+    // console.log(obj[0].name);
+    // console.log(obj.shift().name);
+    return obj[0].name;
+}
 //判断字符是否为空的方法
 function isEmpty(obj){
 	if(typeof obj == "undefined" || obj == null || obj == ""){
