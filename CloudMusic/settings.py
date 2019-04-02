@@ -97,6 +97,7 @@ DATABASES = {
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -114,9 +115,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-SEARCH_URL = "https://api.bzqll.com/music/netease/search"
-SEARCH_KEY = "579621905"
+SEARCH_URL = "http://118.24.153.233:26930/search"
+CHECK_URL = "http://118.24.153.233:26930/check/music"
+MUSIC_URL = "http://118.24.153.233:26930/song/url"
+# SEARCH_URL = "https://api.bzqll.com/music/netease/search"
+# SEARCH_KEY = "579621905"
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/

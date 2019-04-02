@@ -8,10 +8,20 @@ import urllib.parse
 import requests
 from concurrent.futures import ThreadPoolExecutor
 import logging
+import mplayer
 from .models import Playlist
+import asyncio
 # Create your views here.
 logger = logging.getLogger('django')
+def Singleton(cls):
+    _instance = {}
 
+    def _singleton(*args, **kwargs):
+        if cls not in _instance:
+            _instance[cls] = cls(*args, **kwargs)
+        return _instance[cls]
+
+    return _singleton
 class netGet(object):
     def __init__(self,url):
         # self.session = requests.session()
@@ -95,11 +105,9 @@ def musicSearch(request):
             return JsonResponse(failRes)
         logger.info(song)
         payload = {
-            'key' : settings.SEARCH_KEY,
             'limit' : limit,
             'offset' : offset,
-            'type':'song',
-            's':song
+            'keywords':song
         }
         logger.info("开始请求")
         r = requests.get(settings.SEARCH_URL,params=payload)
@@ -107,14 +115,14 @@ def musicSearch(request):
             failRes['errRes'] = "网络异常"
             return JsonResponse(failRes)
         else:
-            # logger.info(r.text)
+            logger.info(r.text)
             srch = r.json()
             if srch['code'] ==200:
                 sucRes = {
                     'code': 0,
                     'msg': "SUCCESS",
-                    'count':limit,
-                    'data': srch['data']
+                    'count':srch['result']['songCount'],
+                    'data': srch['result']['songs']
                 }
                 logger.info(sucRes)
                 return JsonResponse(sucRes)
@@ -124,3 +132,113 @@ def musicSearch(request):
                 return JsonResponse(failRes)
         # r = Requests(__url)
         # res = r.post(urllib.parse.urlencode(payload))
+def musicCheck(request):
+    failRes = {
+        'code': 9999,
+        'errRes': ""
+    }
+    try:
+
+        logging.info("开始")
+        logger.info("接收到check请求")
+        # logging.info(request.POST)
+        logger.info(request.GET)
+        if (request.method != 'GET'):
+            failRes['errRes'] = "请使用GET方法"
+            return JsonResponse(failRes)
+        else:
+            id = request.GET.get('id', '')
+            if not id.strip():
+                failRes['errRes'] = "emptyPost"
+                return JsonResponse(failRes)
+            logger.info(id)
+            payload = {
+                'id': id
+            }
+            logger.info("开始请求")
+            r = requests.get(settings.CHECK_URL, params=payload)
+            if r.status_code != 200:
+                failRes['errRes'] = "网络异常"
+                return JsonResponse(failRes)
+            else:
+                logger.info(r.text)
+                srch = r.json()
+                if srch['success']:
+                    logging.info(srch['message'])
+                    sucRes = {
+                        'code': 200,
+                        'msg': srch['message'],
+                    }
+                    logger.info(sucRes)
+                    loop = asyncio.get_event_loop()
+                    loop.run_until_complete(musicPlay(id))
+                    return JsonResponse(sucRes)
+
+                    # return render(request,'detail.html',sucRes)
+                else:
+                    failRes['errRes'] = srch['message']
+                    return JsonResponse(failRes)
+    except Exception as e:
+        print(e)
+        failRes['errRes'] = '系统异常'
+        return failRes
+        # r = Requests(__url)
+
+
+async def musicPlay(id):
+
+    failRes = {
+        'code': 9999,
+        'errRes': ""
+    }
+    logging.info("开始play")
+    # logging.info(request.POST)
+    if not id.strip():
+        failRes['errRes'] = "emptyPost"
+        return JsonResponse(failRes)
+    logger.info(id)
+    payload = {
+        'id': id
+    }
+    logger.info("开始请求")
+    r = requests.get(settings.MUSIC_URL, params=payload)
+    if r.status_code != 200:
+        failRes['errRes'] = "网络异常"
+        return JsonResponse(failRes)
+    else:
+        logger.info(r.text)
+        srch = r.json()
+        if srch['code'] == 200:
+            url = srch['url']
+            # return render(request,'detail.html',sucRes)
+            p = mControll()
+            p.startplay(url)
+        else:
+            failRes['errRes'] = srch['message']
+            return JsonResponse(failRes)
+def musicStop(object):
+    p = mControll()
+    p.pause()
+@Singleton
+class mControll(object):
+    def __init__(self):
+        self.p = mplayer.Player()
+    def check(self):
+        if self.p.is_alive():
+            self.p.quit()
+            logging.info("已经退出")
+            return True
+        else:
+            return False
+    def startplay(self,url):
+        logging.info("准备播放"+url)
+        self.check()
+        self.p.loadfile(url)
+    def pause(self):
+        logging.info("暂停播放")
+        self.p._run_command("pause")
+    def __del__(self):
+        if self.is_alive():
+            self.quit()
+        class_name = self.__class__.__name__
+        logging.info(class_name, '销毁')
