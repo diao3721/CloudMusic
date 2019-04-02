@@ -142,7 +142,11 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
               contentType:"application/x-www-form-urlencoded",
               dataType:'json',
               type:'get',
-              complete:function (data) {
+              success:function(data){
+                  console.log(data);
+                  layer.alert(data.msg,{icon:1});
+              },
+              error:function (data) {
                   console.log(data)
               }
           })
