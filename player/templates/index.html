@@ -43,7 +43,7 @@
     <!--<a class="layui-btn layui-btn-xs" lay-event="pic">图片</a>-->
     <!--<a class="layui-btn layui-btn-xs" lay-event="lrc">歌词</a>-->
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="url"><i class="layui-icon layui-icon-play"></i></a>
-    <a class="layui-btn layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></a>
+    <a class="layui-btn layui-btn-xs" lay-event="pause"><i class="layui-icon layui-icon-pause"></i></a>
 </script>
 <script type="text/javascript">
 // var player = new skPlayer({
@@ -128,8 +128,21 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       var data = obj.data;
       var layEvent = obj.event;
       var tr = obj.tr;
-      if(layEvent === 'pic'){
+      if(layEvent === 'pause'){
           console.log(data);
+          $.ajax({
+              url:'stop',
+              data:{},
+              contentType:"application/x-www-form-urlencoded",
+              dataType:'json',
+              type:'get',
+              success:function(data){
+                layer.alert(data.msg,{icon:1});
+              },
+              error:function(data){
+                layer.alert(data.msg,{icon:2});
+              }
+          })
       }
       if(layEvent ==='url'){
           console.log(data);
@@ -142,11 +155,10 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
               dataType:'json',
               type:'get',
               success:function(data){
-                  console.log(data);
-                  layer.alert(data.msg,{icon:1});
+                layer.alert(data.msg,{icon:1});
               },
-              error:function (data) {
-                  console.log(data)
+              error:function(data){
+                layer.alert(data.msg,{icon:2});
               }
           })
       }
