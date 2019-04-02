@@ -170,9 +170,12 @@ def musicCheck(request):
                         'msg': srch['message'],
                     }
                     logger.info(sucRes)
-                    loop = asyncio.get_event_loop()
-                    loop.run_until_complete(musicPlay(id))
-                    return JsonResponse(sucRes)
+                    res = musicPlay(id)
+                    if res:
+                        return JsonResponse(sucRes)
+                    else:
+                        failRes['errRes'] = res['errRes']
+                        return JsonResponse(failRes)
 
                     # return render(request,'detail.html',sucRes)
                 else:
@@ -185,37 +188,37 @@ def musicCheck(request):
         # r = Requests(__url)
 
 
-async def musicPlay(id):
-
+def musicPlay(id):
     failRes = {
         'code': 9999,
         'errRes': ""
     }
-    logging.info("开始play")
     # logging.info(request.POST)
     if not id.strip():
         failRes['errRes'] = "emptyPost"
-        return JsonResponse(failRes)
+        return failRes
     logger.info(id)
     payload = {
         'id': id
     }
-    logger.info("开始请求")
+    logger.info("开始请求播放地址")
     r = requests.get(settings.MUSIC_URL, params=payload)
     if r.status_code != 200:
         failRes['errRes'] = "网络异常"
-        return JsonResponse(failRes)
+        return failRes
     else:
         logger.info(r.text)
         srch = r.json()
         if srch['code'] == 200:
             url = srch['data'][0]['url']
+            logger.info(url)
             # return render(request,'detail.html',sucRes)
             p = mControll()
             p.startplay(url)
+            return True
         else:
             failRes['errRes'] = srch['message']
-            return JsonResponse(failRes)
+            return failRes
 def musicStop(object):
     p = mControll()
     p.pause()
