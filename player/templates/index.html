@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="{% static 'player/css/layui.css' %}">
 </head>
 <body>
-{% load render_bundle from webpack_loader %}
 <div class="layui-container">
     <ul class="layui-nav"  lay-filter="CloudMenu" >
       <li class="layui-nav-item"><a href="javascript:;" >歌曲搜索</a></li>
@@ -33,7 +32,7 @@
     </div>
 
 </div>
-<div id="skPlayer"></div>
+<!-- <div id="skPlayer"></div> -->
 <!--<div id="textaudio"></div>-->
 <!-- 你的HTML代码 -->
 <script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
@@ -47,22 +46,22 @@
     <a class="layui-btn layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></a>
 </script>
 <script type="text/javascript">
-var player = new skPlayer({
-    autoplay:false,
-    listshow:false,
-    music:{
-        type:'file',
-        source:[
-            {
-                name:'起风了',
-                author:'吴青峰',
-                src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
-                cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
-            }
-        ]
-    }
-});
-console.log(typeof player);
+// var player = new skPlayer({
+//     autoplay:false,
+//     listshow:false,
+//     music:{
+//         type:'file',
+//         source:[
+//             {
+//                 name:'起风了',
+//                 author:'吴青峰',
+//                 src:'https://api.bzqll.com/music/netease/url?id=1338695683&key=579621905',
+//                 cover:'http://p1.music.126.net/aMVPsO00OqlVTS2yMH8RgA==/109951163785600029.jpg?param=400y400'
+//             }
+//         ]
+//     }
+// });
+// console.log(typeof player);
 function addMusic(url,pic,singer,name) {
     console.log(player);
     console.log(typeof player);

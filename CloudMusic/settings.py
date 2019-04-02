@@ -28,7 +28,7 @@ SECRET_KEY = 'k(s@nk&%^0=j+m(^orfl9r5fda8%rkj^h6h368bhw8trxaa0f0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webpack_loader',
 ]
 
 MIDDLEWARE = [
@@ -80,14 +79,20 @@ WSGI_APPLICATION = 'CloudMusic.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'cloud',
+#         'USER': 'clouduser',
+#         'PASSWORD': 'acsxdz',
+#         'HOST':'127.0.0.1',
+#         'PORT':'3306'
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cloud',
-        'USER': 'clouduser',
-        'PASSWORD': 'acsxdz',
-        'HOST':'127.0.0.1',
-        'PORT':'3306'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
