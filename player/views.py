@@ -189,36 +189,42 @@ def musicCheck(request):
 
 
 def musicPlay(id):
-    failRes = {
-        'code': 9999,
-        'errRes': ""
-    }
-    # logging.info(request.POST)
-    if not id.strip():
-        failRes['errRes'] = "emptyPost"
-        return failRes
-    logger.info(id)
-    payload = {
-        'id': id
-    }
-    logger.info("开始请求播放地址")
-    r = requests.get(settings.MUSIC_URL, params=payload)
-    if r.status_code != 200:
-        failRes['errRes'] = "网络异常"
-        return failRes
-    else:
-        logger.info(r.text)
-        srch = r.json()
-        if srch['code'] == 200:
-            url = srch['data'][0]['url']
-            logger.info(url)
-            # return render(request,'detail.html',sucRes)
-            p = mControll()
-            p.startplay(url)
-            return True
-        else:
-            failRes['errRes'] = srch['message']
+    try:
+
+        failRes = {
+            'code': 9999,
+            'errRes': ""
+        }
+        # logging.info(request.POST)
+        if not id.strip():
+            failRes['errRes'] = "emptyPost"
             return failRes
+        logger.info(id)
+        payload = {
+            'id': id
+        }
+        logger.info("开始请求播放地址")
+        r = requests.get(settings.MUSIC_URL, params=payload)
+        if r.status_code != 200:
+            failRes['errRes'] = "网络异常"
+            return failRes
+        else:
+            logger.info(r.text)
+            srch = r.json()
+            if srch['code'] == 200:
+                url = srch['data'][0]['url']
+                logger.info(url)
+                # return render(request,'detail.html',sucRes)
+                p = mControll()
+                p.startplay(url)
+                return True
+            else:
+                failRes['errRes'] = srch['message']
+                return failRes
+    except Exception as e:
+        logger.error(e)
+        failRes['errRes'] = '系统异常'
+        return failRes
 def musicStop(object):
     p = mControll()
     p.pause()
