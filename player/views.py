@@ -209,7 +209,7 @@ async def musicPlay(id):
         logger.info(r.text)
         srch = r.json()
         if srch['code'] == 200:
-            url = srch['url']
+            url = srch['data'][0]['url']
             # return render(request,'detail.html',sucRes)
             p = mControll()
             p.startplay(url)

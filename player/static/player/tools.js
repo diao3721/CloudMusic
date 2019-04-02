@@ -66,8 +66,8 @@ function ms_to_hs(mss) {
  * @param obj
  */
 function getSinger(obj){
-    // console.log(obj);
-    // console.log(typeof obj);
+    console.log(obj);
+    console.log(typeof obj);
     // console.log(obj[0].name);
     // console.log(obj.shift().name);
     return obj[0].name;
