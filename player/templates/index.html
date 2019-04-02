@@ -134,7 +134,18 @@ layui.use(['layer', 'form','element','table','laytpl'], function(){
       }
       if(layEvent ==='url'){
           console.log(data);
-
+          console.log(data.id);
+          musicId = data.id;
+          $.ajax({
+              url:'check/?'+"id="+musicId,
+              data:{},
+              contentType:"application/x-www-form-urlencoded",
+              dataType:'json',
+              type:'get',
+              complete:function (data) {
+                  console.log(data)
+              }
+          })
       }
       if(layEvent ==='lrc'){
           console.log(data);

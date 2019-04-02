@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import mplayer
 from .models import Playlist
+import asyncio
 # Create your views here.
 logger = logging.getLogger('django')
 def Singleton(cls):
@@ -136,53 +137,61 @@ def musicCheck(request):
         'code': 9999,
         'errRes': ""
     }
-    logging.info("开始")
-    logger.info("接收到request请求")
-    # logging.info(request.POST)
-    logger.info(request.GET)
-    if (request.method != 'GET'):
-        failRes['errRes'] = "请使用GET方法"
-        return JsonResponse(failRes)
-    else:
-        id = request.GET.get('id', '')
-        if not id.strip():
-            failRes['errRes'] = "emptyPost"
-            return JsonResponse(failRes)
-        logger.info(id)
-        payload = {
-            'id': id
-        }
-        logger.info("开始请求")
-        r = requests.get(settings.CHECK_URL, params=payload)
-        if r.status_code != 200:
-            failRes['errRes'] = "网络异常"
+    try:
+
+        logging.info("开始")
+        logger.info("接收到check请求")
+        # logging.info(request.POST)
+        logger.info(request.GET)
+        if (request.method != 'GET'):
+            failRes['errRes'] = "请使用GET方法"
             return JsonResponse(failRes)
         else:
-            logger.info(r.text)
-            srch = r.json()
-            if srch['success']:
-                logging.info(srch['message'])
-                sucRes = {
-                    'code': 0,
-                    'msg': "SUCCESS",
-                    'count': srch['result']['songCount'],
-                    'data': srch['result']['songs']
-                }
-                logger.info(sucRes)
-                return JsonResponse(sucRes)
-                # return render(request,'detail.html',sucRes)
-            else:
-                failRes['errRes'] = srch['message']
+            id = request.GET.get('id', '')
+            if not id.strip():
+                failRes['errRes'] = "emptyPost"
                 return JsonResponse(failRes)
+            logger.info(id)
+            payload = {
+                'id': id
+            }
+            logger.info("开始请求")
+            r = requests.get(settings.CHECK_URL, params=payload)
+            if r.status_code != 200:
+                failRes['errRes'] = "网络异常"
+                return JsonResponse(failRes)
+            else:
+                logger.info(r.text)
+                srch = r.json()
+                if srch['success']:
+                    logging.info(srch['message'])
+                    sucRes = {
+                        'code': 200,
+                        'msg': srch['message'],
+                    }
+                    logger.info(sucRes)
+                    loop = asyncio.get_event_loop()
+                    loop.run_until_complete(musicPlay(id))
+                    return JsonResponse(sucRes)
+
+                    # return render(request,'detail.html',sucRes)
+                else:
+                    failRes['errRes'] = srch['message']
+                    return JsonResponse(failRes)
+    except Exception as e:
+        print(e)
+        failRes['errRes'] = '系统异常'
+        return failRes
         # r = Requests(__url)
 
-def musicPlay(id):
+
+async def musicPlay(id):
+
     failRes = {
         'code': 9999,
         'errRes': ""
     }
-    logging.info("开始")
-    logger.info("接收到request请求")
+    logging.info("开始play")
     # logging.info(request.POST)
     if not id.strip():
         failRes['errRes'] = "emptyPost"
