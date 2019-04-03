@@ -9,9 +9,12 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import mplayer
+import json
 from .models import Playlist
 import asyncio
+import redis
 # Create your views here.
+global_list = []
 logger = logging.getLogger('django')
 def Singleton(cls):
     _instance = {}
@@ -22,6 +25,52 @@ def Singleton(cls):
         return _instance[cls]
 
     return _singleton
+@Singleton
+class mControll(mplayer.Player):
+    def __init__(self):
+        # super(mplayer.Player,self).__init__()
+        mplayer.Player.__init__(self)
+        logger.info("234")
+        logger.info(id(self))
+    def check(self):
+        if self.is_alive():
+            self.quit()
+            logger.info("已经退出")
+            return True
+        else:
+            return False
+    def startplay(self,url):
+        try:
+            logger.info("准备播放"+url)
+            # self.check()
+            if self.is_alive():
+                logger.info("存在")
+            else:
+                logger.info("不存在")
+            self.loadfile(url)
+            return True
+        except Exception as e:
+            logger.info(e)
+            return False
+    def pause(self):
+        logger.info("暂停播放")
+        self.stop()
+        return True
+    def __del__(self):
+        if self.is_alive():
+            self.quit()
+        class_name = self.__class__.__name__
+        logger.info(class_name, '销毁')
+p = mControll()
+# re = redis.Redis(host='192.168.13.199',port=32770)
+# re.set('p',p)
+global_list.append(p)
+# if callable(p):
+#     logger.info("已存在，销毁")
+#     p.pause()
+#     p = mControll()
+
+logger.info(json.dumps({'控制器id':id(p)},ensure_ascii=False))
 class netGet(object):
     def __init__(self,url):
         # self.session = requests.session()
@@ -82,7 +131,7 @@ def playMusic(request):
         return JsonResponse(failRes)
     else:
         song = request.GET.get('song', '')
-    pass
+        return HttpResponse(song)
 
 def musicSearch(request):
     failRes = {
@@ -115,16 +164,17 @@ def musicSearch(request):
             failRes['errRes'] = "网络异常"
             return JsonResponse(failRes)
         else:
-            logger.info(r.text)
+            # logger.info(r.text)
             srch = r.json()
             if srch['code'] ==200:
+                logger.info("请求成功")
                 sucRes = {
                     'code': 0,
                     'msg': "SUCCESS",
                     'count':srch['result']['songCount'],
                     'data': srch['result']['songs']
                 }
-                logger.info(sucRes)
+                # logger.info(sucRes)
                 return JsonResponse(sucRes)
                 # return render(request,'detail.html',sucRes)
             else:
@@ -144,12 +194,12 @@ def musicCheck(request):
         # logging.info(request.POST)
         logger.info(request.GET)
         if (request.method != 'GET'):
-            failRes['errRes'] = "请使用GET方法"
+            failRes['msg'] = "请使用GET方法"
             return JsonResponse(failRes)
         else:
             id = request.GET.get('id', '')
             if not id.strip():
-                failRes['errRes'] = "emptyPost"
+                failRes['msg'] = "emptyPost"
                 return JsonResponse(failRes)
             logger.info(id)
             payload = {
@@ -157,34 +207,34 @@ def musicCheck(request):
             }
             logger.info("开始请求")
             r = requests.get(settings.CHECK_URL, params=payload)
+            srch = r.json()
             if r.status_code != 200:
-                failRes['errRes'] = "网络异常"
-                return JsonResponse(failRes)
+                failRes['msg'] = srch['message']
+                return JsonResponse(failRes,status=404)
             else:
                 logger.info(r.text)
-                srch = r.json()
-                if srch['success']:
-                    logging.info(srch['message'])
+                if srch['success'] == True:
                     sucRes = {
                         'code': 200,
                         'msg': srch['message'],
                     }
                     logger.info(sucRes)
+                    logger.info(global_list)
                     res = musicPlay(id)
                     if res:
                         logger.info("播放")
                         return JsonResponse(sucRes)
                     else:
-                        failRes['errRes'] = res['errRes']
+                        failRes['msg'] = res['errRes']
                         return JsonResponse(failRes)
 
                     # return render(request,'detail.html',sucRes)
                 else:
-                    failRes['errRes'] = srch['message']
+                    failRes['msg'] = srch['message']
                     return JsonResponse(failRes)
     except Exception as e:
         print(e)
-        failRes['errRes'] = '系统异常'
+        failRes['msg'] = '系统异常'
         return JsonResponse(failRes)
         # r = Requests(__url)
 
@@ -199,21 +249,22 @@ def musicPlay(id):
         if not id.strip():
             failRes['errRes'] = "emptyPost"
             return failRes
-        logger.info(id)
+        logger.info(json.dumps({'歌曲ID':id},ensure_ascii=False))
         payload = {
             'id': id
         }
         logger.info("开始请求播放地址")
         r = requests.get(settings.MUSIC_URL, params=payload)
+        srch = r.json()
         if r.status_code != 200:
-            failRes['errRes'] = "网络异常"
+            failRes['msg'] = srch['message']
             return JsonResponse(failRes)
         else:
             # logger.info(r.text)
-            srch = r.json()
+            
             if srch['code'] == 200:
                 url = srch['data'][0]['url']
-                logger.info(url)
+                logger.info(json.dumps({'播放地址':url},ensure_ascii=False))
                 # return render(request,'detail.html',sucRes)
                 # p = mplayer.Player()
                 # if p.is_alive():
@@ -221,22 +272,26 @@ def musicPlay(id):
                 #     logger.info(id(p))
                 # p.loadfile(url)
                 # res = True
-                p = mControll()
                 logger.info("启用")
+                # global re
+                # p = re.get('p')
+                p = global_list[0]
                 if p.is_alive():
                     logger.info("alive")
+                else:
+                    logger.info("err")
                 res = p.startplay(url)
                 if res:
                     return True
                 else:
-                    failRes['errRes'] = '失败'
+                    failRes['msg'] = '失败'
                     return JsonResponse(failRes)
             else:
-                failRes['errRes'] = srch['message']
+                failRes['msg'] = srch['message']
                 return JsonResponse(failRes)
     except Exception as e:
         logger.error(e)
-        failRes['errRes'] = '系统异常'
+        failRes['msg'] = '系统异常'
         return JsonResponse(failRes)
 def musicStop(object):
     failRes = {
@@ -244,50 +299,14 @@ def musicStop(object):
         'errRes': ""
     }
     try:
-        p = mControll()
+        # global re
+        # p = re.get('p')
+        p = global_list[0]
         logger.info("stop的id"+str(id(p)))
-        res = p.quit()
-        if res:
-            return JsonResponse({'code':200,'msg':'ok'})
-        else:
-            failRes['errRes'] = "系统错误"
-            return JsonResponse(failRes)
+        p.stop()
+        return JsonResponse({'code':200,'msg':'停止了'})
     except Exception as e:
         logger.error(e)
-        failRes['errRes'] = e
+        failRes['msg'] = e
         return JsonResponse(failRes)
-@Singleton
-class mControll(mplayer.Player):
-    def __init__(self):
-        mplayer.Player.__init__(self)
-        logger.info("234")
-        logger.info(id(self))
-    def check(self):
-        if self.is_alive():
-            self.quit()
-            logger.info("已经退出")
-            return True
-        else:
-            return False
-    def startplay(self,url):
-        try:
-            logger.info("准备播放"+url)
-            # self.check()
-            if self.is_alive():
-                logger.info("存在")
-            else:
-                logger.info("不存在")
-            self.loadfile(url)
-            return True
-        except Exception as e:
-            logger.info(e)
-            return False
-    def pause(self):
-        logger.info("暂停播放")
-        self.quit()
-        return True
-    def __del__(self):
-        if self.is_alive():
-            self.quit()
-        class_name = self.__class__.__name__
-        logger.info(class_name, '销毁')
+

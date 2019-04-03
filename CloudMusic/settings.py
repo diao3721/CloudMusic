@@ -242,3 +242,5 @@ LOGGING = {
     }
 
 }
+logger1 = logging.getLogger('django')
+logger1.info('初始化')
